@@ -1,0 +1,664 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentinel | IDS/IPS Operations Center</title>
+
+<style>
+:root {
+  --bg: #080d18;
+  --sidebar: #0c1423;
+  --panel: #111c2e;
+  --border: #243249;
+  --text: #e6edf7;
+  --muted: #8c9bb2;
+  --cyan: #4de0d0;
+  --blue: #63a5ff;
+  --red: #ff647c;
+  --yellow: #ffc66d;
+  --green: #48d6a0;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+}
+
+button { font: inherit; }
+
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 245px;
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  padding: 25px 16px;
+  flex-shrink: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 10px 30px;
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--cyan);
+  background: #13303a;
+  font-size: 24px;
+}
+
+.brand h2 { font-size: 17px; margin: 0; }
+.brand p { color: var(--muted); margin: 5px 0 0; font-size: 11px; }
+
+.nav-label {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 16px 12px 9px;
+}
+
+.nav-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  margin: 4px 0;
+  border-radius: 8px;
+  color: #a7b5ca;
+  cursor: pointer;
+}
+
+.nav-item.active {
+  background: #163043;
+  color: var(--cyan);
+  border: 1px solid #24475a;
+}
+
+.nav-item:hover { background: #172538; }
+
+.sidebar-bottom {
+  margin-top: 45px;
+  border-top: 1px solid var(--border);
+  padding: 18px 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+}
+
+.topbar {
+  min-height: 78px;
+  border-bottom: 1px solid var(--border);
+  padding: 18px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  flex-wrap: wrap;
+  background: #0b1220;
+}
+
+.topbar h1 { font-size: 20px; margin: 0; }
+.topbar p { color: var(--muted); margin: 6px 0 0; font-size: 12px; }
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.connection {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid #5b4425;
+  background: #2b2116;
+  color: var(--yellow);
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.content { padding: 28px; max-width: 1600px; margin: auto; }
+
+.eyebrow {
+  color: var(--cyan);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  margin-bottom: 8px;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.section-heading h2 { margin: 0; font-size: 17px; }
+.section-heading p { color: var(--muted); margin: 6px 0 0; font-size: 12px; }
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.card, .panel {
+  background: linear-gradient(145deg, #121f32, #0e1727);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.card {
+  padding: 20px;
+  min-width: 0;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-label { color: #a0aec1; font-size: 12px; }
+
+.card-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: #1b2c43;
+  color: var(--blue);
+  font-size: 17px;
+}
+
+.metric {
+  font-size: 31px;
+  font-weight: 650;
+  margin: 17px 0 8px;
+  letter-spacing: -1px;
+}
+
+.card-foot { color: var(--muted); font-size: 11px; line-height: 1.6; }
+
+.grid-two {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.panel { padding: 21px; min-width: 0; }
+
+.panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.panel-heading h3 { margin: 0; font-size: 14px; }
+.panel-heading p { color: var(--muted); font-size: 11px; margin: 6px 0 0; }
+
+.pill {
+  padding: 5px 9px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.monitor-box {
+  min-height: 190px;
+  border: 1px dashed #31425b;
+  border-radius: 9px;
+  background:
+    linear-gradient(rgba(77,224,208,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(77,224,208,.025) 1px, transparent 1px),
+    #0b1423;
+  background-size: 25px 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+}
+
+.monitor-symbol { font-size: 30px; margin-bottom: 12px; }
+.monitor-box h4 { margin: 0 0 8px; font-size: 14px; }
+.monitor-box p { color: var(--muted); font-size: 12px; line-height: 1.7; margin: 0; }
+
+.engine-list { display: grid; gap: 17px; }
+
+.engine-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.engine-info { display: flex; align-items: center; gap: 11px; }
+.engine-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #1b2c43;
+  display: grid;
+  place-items: center;
+  color: var(--cyan);
+}
+
+.engine-name { font-size: 12px; font-weight: 600; }
+.engine-desc { color: var(--muted); font-size: 10px; margin-top: 5px; }
+
+.status-text { font-size: 11px; color: var(--yellow); white-space: nowrap; }
+
+.table-panel { margin-top: 20px; }
+
+.table-wrap { overflow-x: auto; }
+
+table {
+  width: 100%;
+  min-width: 650px;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  color: #8293ab;
+  font-size: 10px;
+  letter-spacing: .7px;
+  font-weight: 600;
+  background: #0d1727;
+}
+
+th, td {
+  padding: 15px 12px;
+  border-bottom: 1px solid #243249;
+}
+
+td { font-size: 12px; color: #cbd5e1; }
+
+.empty-row td {
+  padding: 30px 12px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.8;
+}
+
+.severity {
+  display: inline-block;
+  padding: 5px 8px;
+  border-radius: 5px;
+  font-size: 10px;
+  background: #2b2116;
+  color: var(--yellow);
+}
+
+.footer {
+  padding: 22px 28px;
+  border-top: 1px solid var(--border);
+  color: #718198;
+  font-size: 11px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+@media (max-width: 1050px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-two { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 650px) {
+  .sidebar { width: 65px; padding: 18px 7px; }
+  .brand { padding: 0 4px 25px; }
+  .brand-copy, .nav-label, .nav-text, .sidebar-bottom { display: none; }
+  .brand-icon { width: 42px; height: 42px; }
+  .nav-item { justify-content: center; padding: 13px 4px; font-size: 18px; }
+  .topbar { padding: 18px; }
+  .content { padding: 17px; }
+  .cards { gap: 10px; }
+  .card { padding: 14px; }
+  .metric { font-size: 25px; }
+  .card-label { font-size: 11px; }
+  .footer { padding: 18px; }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">⬡</div>
+      <div class="brand-copy">
+        <h2>SENTINEL</h2>
+        <p>SECURITY OPERATIONS</p>
+      </div>
+    </div>
+
+    <div class="nav-label">WORKSPACE</div>
+    <div class="nav-item active"><span>▦</span><span class="nav-text">Overview</span></div>
+    <div class="nav-item"><span>⌁</span><span class="nav-text">Network Traffic</span></div>
+    <div class="nav-item"><span>⚑</span><span class="nav-text">Threat Alerts</span></div>
+    <div class="nav-item"><span>⛨</span><span class="nav-text">IPS Blocking</span></div>
+
+    <div class="nav-label">MANAGEMENT</div>
+    <div class="nav-item"><span>≋</span><span class="nav-text">Detection Rules</span></div>
+    <div class="nav-item"><span>▤</span><span class="nav-text">Event Logs</span></div>
+    <div class="nav-item"><span>⚙</span><span class="nav-text">Configuration</span></div>
+
+    <div class="sidebar-bottom">
+      <div>PROJECT</div>
+      <strong style="color:#dbe6f5">IDS / IPS Deployment</strong>
+      <div>Suricata Integration</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <h1>Security Operations Center</h1>
+        <p>Intrusion detection and prevention overview</p>
+      </div>
+      <div class="top-actions">
+        <span class="connection" id="connection">
+          <span class="dot"></span>
+          DISCONNECTED
+        </span>
+        <span class="pill">LAB ENVIRONMENT</span>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">SECURITY OVERVIEW</div>
+          <h2>Monitoring Dashboard</h2>
+          <p>Live data will appear after the Suricata event source is connected.</p>
+        </div>
+        <span class="pill" id="clock">Local time</span>
+      </div>
+
+      <section class="cards">
+        <div class="card">
+          <div class="card-top">
+            <span class="card-label">Total Alerts</span>
+            <span class="card-icon">⚑</span>
+          </div>
+          <div class="metric" id="alertCount">—</div>
+          <div class="card-foot">Waiting for real event data</div>
+        </div>
+
+        <div class="card">
+          <div class="card-top">
+            <span class="card-label">Verified Blocks</span>
+            <span class="card-icon" style="color:var(--red)">⛨</span>
+          </div>
+          <div class="metric" id="blockCount">—</div>
+          <div class="card-foot">Requires verified blocking evidence</div>
+        </div>
+
+        <div class="card">
+          <div class="card-top">
+            <span class="card-label">Detection Engine</span>
+            <span class="card-icon">⌘</span>
+          </div>
+          <div class="metric" style="font-size:22px">Suricata</div>
+          <div class="card-foot">IDS / IPS engine</div>
+        </div>
+
+        <div class="card">
+          <div class="card-top">
+            <span class="card-label">Interface</span>
+            <span class="card-icon" style="color:var(--green)">⇄</span>
+          </div>
+          <div class="metric" style="font-size:22px">eth0</div>
+          <div class="card-foot">Kali Linux lab interface</div>
+        </div>
+      </section>
+
+      <section class="grid-two">
+        <div class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Network Activity</h3>
+              <p>Traffic visibility and event monitoring</p>
+            </div>
+            <span class="pill">AWAITING DATA</span>
+          </div>
+          <div class="monitor-box">
+            <div>
+              <div class="monitor-symbol">⌁</div>
+              <h4>No live traffic feed connected</h4>
+              <p>
+                Connect the Suricata event source to display genuine
+                network events here. This panel does not simulate traffic.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Engine Status</h3>
+              <p>Current integration state</p>
+            </div>
+          </div>
+          <div class="engine-list">
+            <div class="engine-row">
+              <div class="engine-info">
+                <div class="engine-icon">⌘</div>
+                <div>
+                  <div class="engine-name">Suricata Engine</div>
+                  <div class="engine-desc">Kali Linux service</div>
+                </div>
+              </div>
+              <span class="status-text">Not connected</span>
+            </div>
+
+            <div class="engine-row">
+              <div class="engine-info">
+                <div class="engine-icon">▤</div>
+                <div>
+                  <div class="engine-name">Event Stream</div>
+                  <div class="engine-desc">EVE JSON log</div>
+                </div>
+              </div>
+              <span class="status-text">Pending</span>
+            </div>
+
+            <div class="engine-row">
+              <div class="engine-info">
+                <div class="engine-icon">⛨</div>
+                <div>
+                  <div class="engine-name">IPS Enforcement</div>
+                  <div class="engine-desc">Verified block results</div>
+                </div>
+              </div>
+              <span class="status-text">Unverified</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel table-panel">
+        <div class="panel-heading">
+          <div>
+            <h3>Recent Security Events</h3>
+            <p>Authentic events will appear when the log integration is configured.</p>
+          </div>
+          <span class="pill">NO SAMPLE ALERTS</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+                <tr>
+    <th>TIMESTAMP</th>
+    <th>EVENT TYPE</th>
+    <th>SOURCE IP</th>
+    <th>DESTINATION IP</th>
+    <th>ALERT SIGNATURE</th>
+    <th>ACTION</th>
+    <th>SEVERITY</th>
+
+              </tr>
+            </thead>
+            <tbody id="eventTable">
+              <tr class="empty-row">
+                <td colspan="6">
+                  No event source connected.<br>
+                  No live detections or blocking results are currently displayed.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>SENTINEL SOC · IDS/IPS DEPLOYMENT PROJECT</span>
+      <span>Dashboard UI · Suricata integration pending</span>
+    </footer>
+  </div>
+</div>
+
+<script>
+function updateClock() {
+  document.getElementById("clock").textContent =
+    new Date().toLocaleString();
+}
+
+updateClock();
+setInterval(updateClock, 1000);
+
+// Real alert and blocking counts will be populated only after
+// a verified Suricata event source is connected.
+async function loadSuricataEvents() {
+    try {
+        const response = await fetch(
+            "http://127.0.0.1:8765/events"
+        );
+
+        if (!response.ok) {
+            throw new Error("API request failed");
+        }
+
+        const events = await response.json();
+        console.log("Suricata events:", events);
+
+    } catch (error) {
+        console.error("Suricata connection error:", error);
+    }
+}
+
+loadSuricataEvents();
+setInterval(loadSuricataEvents, 5000);
+
+async function updateEventTable() {
+    const tableBody = document.getElementById("eventTable");
+
+    if (!tableBody) {
+        console.error("Event table not found");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://127.0.0.1:8765/events");
+
+        if (!response.ok) {
+            throw new Error("API request failed");
+        }
+
+        const events = await response.json();
+
+        const relevantEvents = events.filter(event =>
+            event.event_type === "alert" || event.event_type === "flow"
+        ).slice(-50).reverse();
+
+        tableBody.replaceChildren();
+
+        if (relevantEvents.length === 0) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.colSpan = 5;
+            cell.textContent = "No alert or flow events found";
+            row.appendChild(cell);
+            tableBody.appendChild(row);
+            return;
+        }
+
+        relevantEvents.forEach(event => {
+            const row = document.createElement("tr");
+                const values = [
+    event.timestamp || "—",
+    event.event_type || "—",
+    event.src_ip || "—",
+    event.dest_ip || "—",
+    event.alert || "—",
+    event.action || "—",
+    event.severity ?? "—"
+];
+
+            values.forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
+
+            tableBody.appendChild(row);
+        });
+    } catch (error) {
+        console.error("Could not update event table:", error);
+    }
+}
+
+updateEventTable();
+setInterval(updateEventTable, 5000);
+</script>
+</body>
+</html>
