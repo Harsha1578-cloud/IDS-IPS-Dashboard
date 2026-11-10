@@ -39,19 +39,9 @@ class Handler(BaseHTTPRequestHandler):
         if not INGEST_TOKEN:
             self.send_json(503, {"error": "Ingestion is not configured"})
             return
-            auth_header = self.headers.get("Authorization", "")
-print(
-    "Auth diagnostic:",
-    "token_configured =", bool(INGEST_TOKEN),
-    "token_length =", len(INGEST_TOKEN),
-    "header_present =", bool(auth_header),
-    "bearer_prefix =", auth_header.startswith("Bearer "),
-    "header_token_length =",
-    len(auth_header.removeprefix("Bearer "))
-    if auth_header.startswith("Bearer ") else 0
-)
+        auth_header = self.headers.get("Authorization", "")
 
-        if self.headers.get("Authorization") != f"Bearer {INGEST_TOKEN}":
+        if auth_header != f"Bearer {INGEST_TOKEN}":
             self.send_json(401, {"error": "Unauthorized"})
             return
 
